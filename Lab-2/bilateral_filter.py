@@ -69,7 +69,7 @@ class BilateralFilter:
         kernel_size: int,
         start: int,
         end: int
-    ) -> tuple[npt.NDArray[np.int16], int, int]:
+    ) -> tuple[npt.NDArray[np.uint8], int, int]:
         """
         Applies the bilateral filter to the image.
 
@@ -93,7 +93,7 @@ class BilateralFilter:
         )
 
         # output_dimension = (end - start - 2 * padding + 1, col)
-        result = np.zeros(img.shape[:2], dtype=np.int16)    # type: ignore
+        result = np.zeros(img.shape[:2], dtype=np.uint8)    # type: ignore
         sigma_r = self.sigma_r
         s_r_squared = 2 * sigma_r ** 2
         range_filter = np.zeros(                            # type: ignore
@@ -131,7 +131,7 @@ class BilateralFilter:
         return result, start, end - padding * 2
 
     @staticmethod
-    def arg_wrapper(args: Any) -> tuple[npt.NDArray[np.int16], int, int]:
+    def arg_wrapper(args: Any) -> tuple[npt.NDArray[np.uint8], int, int]:
         """
         Wrapper for the apply_filter function.
         It is necessary to use this wrapper because the apply_filter function receives multiple arguments.
@@ -147,7 +147,7 @@ class BilateralFilter:
         filter: npt.NDArray[np.float32],
         filter_size: int,
         blocks: list[tuple[int, int]]
-    ) -> npt.NDArray[np.int16]:
+    ) -> npt.NDArray[np.uint8]:
         """
         Applies the bilateral filter to the image using multiprocessing.
 
@@ -158,7 +158,7 @@ class BilateralFilter:
         :return: The filtered image.
         """
         args = [(self, img, filter, filter_size, *item) for item in blocks]
-        output_img = np.zeros(img.shape, dtype=np.int16)    # type: ignore
+        output_img = np.zeros(img.shape, dtype=np.uint8)    # type: ignore
 
         with concurrent.futures.ProcessPoolExecutor() as executor:
             results = executor.map(BilateralFilter.arg_wrapper, args)
@@ -169,7 +169,7 @@ class BilateralFilter:
 
         return output_img
 
-    def apply(self, img: cv2.Mat, parallel: bool = True) -> npt.NDArray[np.int16]:
+    def apply(self, img: cv2.Mat, parallel: bool = True) -> npt.NDArray[np.uint8]:
         """
         Applies the bilateral filter to the image.
 
